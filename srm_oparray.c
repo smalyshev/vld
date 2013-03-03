@@ -122,7 +122,7 @@ static const op_usage opcodes[] = {
 	/*  76 */	{ "UNSET_OBJ", ALL_USED },
 #else
 	/*  75 */	{ "UNSET_DIM_OBJ", ALL_USED },
-	/*  76 */	{ "ISSET_ISEMPTY", ALL_USED },
+	/*  76 */	{ "ISSET_ISEMPTY", ALL_USED|ISSET_ISEMPTY },
 #endif
 	/*  77 */	{ "FE_RESET", SPECIAL },
 	/*  78 */	{ "FE_FETCH", ALL_USED | OP2_OPNUM },
@@ -157,7 +157,7 @@ static const op_usage opcodes[] = {
 	/*  103 */	{ "EXT_FCALL_END", ALL_USED },
 	/*  104 */	{ "EXT_NOP", ALL_USED },
 	/*  105 */	{ "TICKS", ALL_USED },
-	/*  106 */	{ "SEND_VAR_NO_REF", ALL_USED | EXT_VAL },
+	/*  106 */	{ "SEND_VAR_NO_REF", ALL_USED },
 #ifdef ZEND_ENGINE_2
 	/*  107 */	{ "CATCH", ALL_USED | EXT_VAL },
 	/*  108 */	{ "THROW", ALL_USED | EXT_VAL },
@@ -178,8 +178,8 @@ static const op_usage opcodes[] = {
 	/*  112 */	{ "INIT_METHOD_CALL", ALL_USED },
 	/*  113 */	{ "INIT_STATIC_METHOD_CALL", ALL_USED },
 	
-	/*  114 */	{ "ISSET_ISEMPTY_VAR", ALL_USED | EXT_VAL },
-	/*  115 */	{ "ISSET_ISEMPTY_DIM_OBJ", ALL_USED | EXT_VAL },
+	/*  114 */	{ "ISSET_ISEMPTY_VAR", ALL_USED | ISSET_ISEMPTY },
+	/*  115 */	{ "ISSET_ISEMPTY_DIM_OBJ", ALL_USED | ISSET_ISEMPTY },
 	
 	/*  116 */	{ "IMPORT_FUNCTION", ALL_USED },
 	/*  117 */	{ "IMPORT_CLASS", ALL_USED },
@@ -222,7 +222,7 @@ static const op_usage opcodes[] = {
 	/*  145 */	{ "VERIFY_INSTANCEOF", ALL_USED },
 	/*  146 */	{ "VERIFY_ABSTRACT_CLASS", ALL_USED },
 	/*  147 */	{ "ASSIGN_DIM", ALL_USED },
-	/*  148 */	{ "ISSET_ISEMPTY_PROP_OBJ", ALL_USED },
+	/*  148 */	{ "ISSET_ISEMPTY_PROP_OBJ", ALL_USED | ISSET_ISEMPTY },
 	/*  149 */	{ "HANDLE_EXCEPTION", NONE_USED },
 	/*  150 */	{ "USER_OPCODE", ALL_USED },
 	/*  151 */	{ "UNKNOWN", ALL_USED },
@@ -391,10 +391,10 @@ int vld_dump_znode (int *print_sep, unsigned int node_type, VLD_ZNODE node, zend
 			break;
 #endif
 		case VLD_IS_OPNUM:
-			len += vld_printf (stderr, "Op(%d)", VLD_ZNODE_ELEM(node, opline_num));
+			len += vld_printf (stderr, "%d", VLD_ZNODE_ELEM(node, opline_num));
 			break;
 		case VLD_IS_OPLINE:
-			len += vld_printf (stderr, "Op(%d)", (VLD_ZNODE_ELEM(node, opline_num) - base_address) / sizeof(zend_op));
+			len += vld_printf (stderr, "%d", (VLD_ZNODE_ELEM(node, opline_num) - base_address) / sizeof(zend_op));
 			break;
 		case VLD_IS_CLASS:
 #if PHP_VERSION_ID >= 50500
@@ -448,6 +448,9 @@ static zend_uint vld_get_special_flags(const zend_op *op, zend_uint base_address
 		case ZEND_DO_FCALL_BY_NAME:
 		case ZEND_DO_FCALL:
 			flags = OP1_USED | RES_USED | EXT_VAL;
+#if PHP_VERSION_ID >= 50500
+			flags |= OP2_USED | OP2_OPNUM;
+#endif
 			/*flags = ALL_USED | EXT_VAL;
 			op->op2.op_type = IS_CONST;
 			op->op2.u.constant.type = IS_LONG;*/
@@ -476,7 +479,11 @@ static zend_uint vld_get_special_flags(const zend_op *op, zend_uint base_address
 
 #ifdef ZEND_ENGINE_2
 		case ZEND_FETCH_CLASS:
-			flags = EXT_VAL|RES_USED|OP2_USED|RES_CLASS;
+#ifdef PHP_VERSION_ID >= 50500
+		flags = RES_USED|OP2_USED|RES_CLASS;
+#else
+		flags = EXT_VAL|RES_USED|OP2_USED|RES_CLASS;
+#endif			
 			break;
 #endif
 
@@ -594,7 +601,7 @@ void vld_dump_op(int nr, zend_op * op_ptr, zend_uint base_address, int notdead, 
 		vld_printf(stderr, "%5d%c %c %c ", nr, notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ');
 	}
 
-	if ((flags & RES_USED) && !(op.VLD_EXTENDED_VALUE(result) & EXT_TYPE_UNUSED)) {
+	if ((flags & RES_USED) && !(op.VLD_EXTENDED_VALUE(result) & EXT_TYPE_UNUSED) && res_type != IS_UNUSED && !(res_type & EXT_TYPE_UNUSED)) {
 		VLD_PRINT(3, " RES[ ");
 		len = vld_dump_znode (NULL, res_type, op.result, base_address TSRMLS_CC);
 		VLD_PRINT(3, " ]");
@@ -603,10 +610,10 @@ void vld_dump_op(int nr, zend_op * op_ptr, zend_uint base_address, int notdead, 
 				vld_printf(stderr, " = ");
 			}
 		} else {
-			vld_printf(stderr, "%*s", 8-len, " = ");
+			vld_printf(stderr, "%*s", 9-len, " = ");
 		}
 	} else {
-		vld_printf(stderr, "        ");
+		vld_printf(stderr, "         ");
 	}
 
 	if (op.opcode >= NUM_KNOWN_OPCODES) {
@@ -665,36 +672,84 @@ void vld_dump_op(int nr, zend_op * op_ptr, zend_uint base_address, int notdead, 
 		VLD_PRINT(3, " ]");
 	}
 
-	if (VLD_G(format)) {
-		vld_printf(stderr, "%s ", VLD_G(col_sep));
-	} else {
-		vld_printf(stderr, "   ");
-	}
-
 	if(fetch_type && fetch_type[0]) {
 		if (VLD_G(format)) {
-			vld_printf(stderr, "%s %-14s ", fetch_type);
+			vld_printf(stderr, "%s %s ", VLD_G(col_sep), fetch_type);
 		} else {
-			vld_printf(stderr, "%-14s ", fetch_type);
+			vld_printf(stderr, " Fetch[%s] ", fetch_type);
 		}
 	}	
 
-	if (flags & EXT_VAL) {
-		vld_printf(stderr, "%3X  ", op.extended_value);
-	} 
+	if(flags & RES_CLASS) {
+		char *class_fetch = NULL;
+        switch (op.extended_value) {
+                case ZEND_FETCH_CLASS_SELF:
+					class_fetch = "self";
+					break;
+                case ZEND_FETCH_CLASS_PARENT:
+					class_fetch = "self";
+					break;
+                case ZEND_FETCH_CLASS_STATIC:
+					class_fetch = "static";
+					break;
+                case ZEND_FETCH_CLASS_AUTO: 
+					class_fetch = "auto";
+					break;
+		}
+		if(class_fetch) {
+			vld_printf(stderr, " Class[%s] ", class_fetch);
+		}
+	}
+
+	if (flags & ISSET_ISEMPTY) {
+		if(op.extended_value & ZEND_ISSET) {
+			vld_printf(stderr, " ISSET ");
+		} else {
+			vld_printf(stderr, " ISEMPTY ");
+		}
+	}
+	
+	if(flags & EXT_VAL) {
+		if (VLD_G(format)) {
+			vld_printf(stderr, "%s %3X ", VLD_G(col_sep), op.extended_value);
+		} else {
+			vld_printf(stderr, " Ext[%X] ", op.extended_value);
+		}
+	}
+	
+	/* unique case */
+	if(op.opcode == ZEND_SEND_VAR_NO_REF) {
+		char *send_var = NULL;
+		vld_printf(stderr, " Send[");
+		if (op.extended_value & ZEND_ARG_COMPILE_TIME_BOUND) {
+			vld_printf(stderr, "Compile,");
+		}
+		if (op.extended_value & ZEND_ARG_SEND_BY_REF) {
+			vld_printf(stderr, "Byref,");	
+		}
+		if (op.extended_value & ZEND_ARG_SEND_FUNCTION) {
+			vld_printf(stderr, "Func,");	
+		}
+		if (op.extended_value & ZEND_ARG_SEND_SILENT) {
+			vld_printf(stderr, "Silent,");	
+		}
+		vld_printf(stderr, "]");	
+	}
 
 	if (flags & OP2_BRK_CONT) {
 		long jmp;
 		zend_brk_cont_element *el;
 
 		VLD_PRINT(3, " BRK_CONT[ ");
-#if PHP_VERSION_ID >= 50399
+#if PHP_VERSION_ID >= 50500
+		el = vld_find_brk_cont(Z_LVAL_P(op.op2.zv), VLD_ZNODE_ELEM(op.op1, opline_num), opa);
+#elif PHP_VERSION_ID >= 50399
 		el = vld_find_brk_cont(op.op2.constant, op.op1.opline_num, opa);
 #else
 		el = vld_find_brk_cont(op.op2.u.constant.value.lval, op.op1.u.opline_num, opa);
 #endif
 		jmp = op.opcode == ZEND_BRK ? el->brk : el->cont;
-		vld_printf (stderr, ", ->%d", jmp);
+		vld_printf (stderr, " Brk[%d]", jmp);
 		VLD_PRINT(3, " ]");
 	}
 	if (flags & NOP2_OPNUM) {
@@ -810,7 +865,9 @@ int vld_find_jump(zend_op_array *opa, unsigned int position, long *jmp1, long *j
 		    && VLD_ZNODE_ELEM(opcode.op1, jmp_addr) != (zend_op*) 0xFFFFFFFF
 #endif
 		) {
-#if PHP_VERSION_ID >= 50399
+#if PHP_VERSION_ID >= 50500
+			el = vld_find_brk_cont(Z_LVAL_P(opcode.op2.zv), VLD_ZNODE_ELEM(opcode.op1, opline_num), opa);
+#elif PHP_VERSION_ID >= 50399
 			el = vld_find_brk_cont(opcode.op2.constant, VLD_ZNODE_ELEM(opcode.op1, opline_num), opa);
 #else
 			el = vld_find_brk_cont(opcode.op2.u.constant.value.lval, VLD_ZNODE_ELEM(opcode.op1, opline_num), opa);
@@ -862,9 +919,9 @@ void vld_analyse_branch(zend_op_array *opa, unsigned int position, vld_set *set,
 	unsigned int branchnr;
 
 	if (VLD_G(format)) {
-		VLD_PRINT2(1, "Branch analysis from position:%s%d\n", VLD_G(col_sep),position);
+		VLD_PRINT2(3, "Branch analysis from position:%s%d\n", VLD_G(col_sep),position);
 	} else {
-		VLD_PRINT1(1, "Branch analysis from position: %d\n", position);
+		VLD_PRINT1(3, "Branch analysis from position: %d\n", position);
 	}
 
 	vld_set_add(branch_info->starts, position);
@@ -883,11 +940,11 @@ void vld_analyse_branch(zend_op_array *opa, unsigned int position, vld_set *set,
 
 		/* See if we have a jump instruction */
 		if (vld_find_jump(opa, position, &jump_pos1, &jump_pos2)) {
-			VLD_PRINT1(1, "Jump found. Position 1 = %d", jump_pos1);
+			VLD_PRINT1(3, "Jump found. Position 1 = %d", jump_pos1);
 			if (jump_pos2 != -1) {
-				VLD_PRINT1(1, ", Position 2 = %d\n", jump_pos2);
+				VLD_PRINT1(3, ", Position 2 = %d\n", jump_pos2);
 			} else {
-				VLD_PRINT(1, "\n");
+				VLD_PRINT(3, "\n");
 			}
 			vld_branch_info_update(branch_info, position, opa->opcodes[position].lineno, 0, jump_pos1);
 			vld_analyse_branch(opa, jump_pos1, set, branch_info TSRMLS_CC);
@@ -900,7 +957,7 @@ void vld_analyse_branch(zend_op_array *opa, unsigned int position, vld_set *set,
 #ifdef ZEND_ENGINE_2
 		/* See if we have a throw instruction */
 		if (opa->opcodes[position].opcode == ZEND_THROW) {
-			VLD_PRINT1(1, "Throw found at %d\n", position);
+			VLD_PRINT1(3, "Throw found at %d\n", position);
 			vld_set_add(branch_info->ends, position);
 			branch_info->branches[position].start_lineno = opa->opcodes[position].lineno;
 			break;
@@ -908,7 +965,7 @@ void vld_analyse_branch(zend_op_array *opa, unsigned int position, vld_set *set,
 #endif
 		/* See if we have an exit instruction */
 		if (opa->opcodes[position].opcode == ZEND_EXIT) {
-			VLD_PRINT(1, "Exit found\n");
+			VLD_PRINT(3, "Exit found\n");
 			vld_set_add(branch_info->ends, position);
 			branch_info->branches[position].start_lineno = opa->opcodes[position].lineno;
 			break;
@@ -920,7 +977,7 @@ void vld_analyse_branch(zend_op_array *opa, unsigned int position, vld_set *set,
 			|| opa->opcodes[position].opcode == ZEND_RETURN_BY_REF
 #endif
 		) {
-			VLD_PRINT(1, "Return found\n");
+			VLD_PRINT(3, "Return found\n");
 			vld_set_add(branch_info->ends, position);
 			branch_info->branches[position].start_lineno = opa->opcodes[position].lineno;
 			break;
