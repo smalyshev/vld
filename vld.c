@@ -86,6 +86,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("vld.save_dir",     "/tmp", PHP_INI_SYSTEM, OnUpdateString, save_dir, zend_vld_globals, vld_globals)
 	STD_PHP_INI_ENTRY("vld.save_paths",   "0", PHP_INI_SYSTEM, OnUpdateBool, save_paths,   zend_vld_globals, vld_globals)
 	STD_PHP_INI_ENTRY("vld.dump_paths",   "1", PHP_INI_SYSTEM, OnUpdateBool, dump_paths,   zend_vld_globals, vld_globals)
+	STD_PHP_INI_ENTRY("vld.encode",       "1", PHP_INI_SYSTEM, OnUpdateBool, encode,   zend_vld_globals, vld_globals)
 PHP_INI_END()
  
 static void vld_init_globals(zend_vld_globals *vld_globals)
@@ -220,6 +221,15 @@ static int vld_check_fe (zend_op_array *fe, zend_bool *have_fe TSRMLS_DC)
 	return 0;
 }
 
+char *vld_url_encode(char *str, int len, int *newlen TSRMLS_DC)
+{
+	if(VLD_G(encode)) {
+		return php_url_encode(str, len, newlen);
+	}
+	*newlen = len;
+	return estrndup(str, len);
+}
+
 static int vld_dump_fe (zend_op_array *fe APPLY_TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
 {
 #if PHP_VERSION_ID < 50300
@@ -229,7 +239,7 @@ static int vld_dump_fe (zend_op_array *fe APPLY_TSRMLS_DC, int num_args, va_list
 		char *new_str;
 		int new_len;
 
-		new_str = php_url_encode(ZSTRKEY(hash_key->arKey), hash_key->nKeyLength - 1, &new_len);
+		new_str = vld_url_encode(ZSTRKEY(hash_key->arKey), hash_key->nKeyLength - 1, &new_len);
 		vld_printf(stderr, "Function " ZSTRFMT ":\n", new_str);
 		vld_dump_oparray(fe TSRMLS_CC);
 		vld_printf(stderr, "End of function " ZSTRFMT ".\n\n", new_str);

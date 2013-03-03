@@ -277,7 +277,7 @@ static inline int vld_dump_zval_string(zvalue_value value)
 	char *new_str;
 	int new_len, len;
 
-	new_str = php_url_encode(value.str.val, value.str.len, &new_len);
+	new_str = vld_url_encode(value.str.val, value.str.len, &new_len);
 	len = vld_printf (stderr, "'%s'", new_str);
 	efree(new_str);
 	return len;

@@ -53,6 +53,7 @@ ZEND_BEGIN_MODULE_GLOBALS(vld)
 	char *save_dir;
 	FILE *path_dump_file;
 	int dump_paths;
+	int encode;
 ZEND_END_MODULE_GLOBALS(vld) 
 
 int vld_printf(FILE *stream, const char* fmt, ...);
@@ -77,6 +78,7 @@ int vld_printf(FILE *stream, const char* fmt, ...);
 #endif
 
 #endif
+char *vld_url_encode(char *str, int len, int *newlen TSRMLS_DC);
 
 
 /*
