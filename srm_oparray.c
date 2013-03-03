@@ -230,7 +230,16 @@ static const op_usage opcodes[] = {
 	/*  153 */	{ "ZEND_DECLARE_LAMBDA_FUNCTION", OP1_USED },
 	/*  154 */	{ "ZEND_ADD_TRAIT", ALL_USED },
 	/*  155 */	{ "ZEND_BIND_TRAITS", OP1_USED },
-	/*  155 */	{ "ZEND_SEPARATE", ALL_USED },
+	/*  156 */	{ "ZEND_SEPARATE", ALL_USED },
+# if PHP_VERSION_ID >= 50500
+	/*  157 */	{ "ZEND_QM_ASSIGN_VAR", OP1_USED },
+	/*  158 */	{ "ZEND_JMP_SET_VAR", ALL_USED | OP2_OPLINE },
+	/*  159 */	{ "ZEND_DISCARD_EXCEPTION", NONE_USED },
+	/*  160 */	{ "ZEND_YIELD", ALL_USED },
+	/*  161 */	{ "ZEND_GENERATOR_RETURN", NONE_USED },
+	/*  162 */	{ "ZEND_FAST_CALL", ALL_USED|OP1_OPLINE|OP2_OPLINE },
+	/*  163 */	{ "ZEND_FAST_RET", ALL_USED|OP2_OPLINE },	
+#endif	
 #endif
 };
 
@@ -361,26 +370,38 @@ int vld_dump_znode (int *print_sep, unsigned int node_type, VLD_ZNODE node, zend
 #ifdef ZEND_ENGINE_2
 		case IS_TMP_VAR: /* 2 */
 			VLD_PRINT(3, " IS_TMP_VAR ");
-			len += vld_printf (stderr, "~%d", VLD_ZNODE_ELEM(node, var) / sizeof(temp_variable));
+#if PHP_VERSION_ID >= 50500
+			len += vld_printf (stderr, "T(%d)", (-(signed int)VLD_ZNODE_ELEM(node, var)) / sizeof(temp_variable));
+#else
+			len += vld_printf (stderr, "T(%d)", VLD_ZNODE_ELEM(node, var) / sizeof(temp_variable));
+#endif
 			break;
 		case IS_VAR: /* 4 */
 			VLD_PRINT(3, " IS_VAR ");
-			len += vld_printf (stderr, "$%d", VLD_ZNODE_ELEM(node, var) / sizeof(temp_variable));
+#if PHP_VERSION_ID >= 50500
+			len += vld_printf (stderr, "A(%d)", (-(signed int)VLD_ZNODE_ELEM(node, var)) / sizeof(temp_variable));
+#else
+			len += vld_printf (stderr, "A(%d)", VLD_ZNODE_ELEM(node, var) / sizeof(temp_variable));
+#endif			
 			break;
 #if (PHP_MAJOR_VERSION > 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 1)
 		case IS_CV:  /* 16 */
 			VLD_PRINT(3, " IS_CV ");
-			len += vld_printf (stderr, "!%d", VLD_ZNODE_ELEM(node, var));
+			len += vld_printf (stderr, "CV(%d)", VLD_ZNODE_ELEM(node, var));
 			break;
 #endif
 		case VLD_IS_OPNUM:
-			len += vld_printf (stderr, "->%d", VLD_ZNODE_ELEM(node, opline_num));
+			len += vld_printf (stderr, "Op(%d)", VLD_ZNODE_ELEM(node, opline_num));
 			break;
 		case VLD_IS_OPLINE:
-			len += vld_printf (stderr, "->%d", (VLD_ZNODE_ELEM(node, opline_num) - base_address) / sizeof(zend_op));
+			len += vld_printf (stderr, "Op(%d)", (VLD_ZNODE_ELEM(node, opline_num) - base_address) / sizeof(zend_op));
 			break;
 		case VLD_IS_CLASS:
-			len += vld_printf (stderr, ":%d", VLD_ZNODE_ELEM(node, var) / sizeof(temp_variable));
+#if PHP_VERSION_ID >= 50500
+			len += vld_printf (stderr, "CL(%d)", (-(signed int)VLD_ZNODE_ELEM(node, var)) / sizeof(temp_variable));
+#else
+			len += vld_printf (stderr, "CL(%d)", VLD_ZNODE_ELEM(node, var) / sizeof(temp_variable));
+#endif
 			break;
 #else
 		case IS_TMP_VAR: /* 2 */
@@ -687,9 +708,9 @@ void vld_dump_oparray(zend_op_array *opa TSRMLS_DC)
 		vld_printf (stderr, "number of ops:  %d\n", opa->last);
 	}
 #ifdef IS_CV /* PHP >= 5.1 */
-	vld_printf (stderr, "compiled vars:  ");
+	vld_printf (stderr, "compiled vars:\n");
 	for (i = 0; i < opa->last_var; i++) {
-		vld_printf (stderr, "!%d = $" ZSTRFMT "%s", i, ZSTRCP(opa->vars[i].name), ((i + 1) == opa->last_var) ? "\n" : ", ");
+		vld_printf (stderr, "%d: $" ZSTRFMT "\n", i, ZSTRCP(opa->vars[i].name));
 	}
 	if (!opa->last_var) {
 		vld_printf(stderr, "none\n");
