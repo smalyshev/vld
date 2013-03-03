@@ -44,7 +44,6 @@ static zend_op_array* (*old_compile_string)(zval *source_string, char *filename 
 static zend_op_array* vld_compile_string(zval *source_string, char *filename TSRMLS_DC);
 
 static void (*old_execute)(zend_op_array *op_array TSRMLS_DC);
-static void vld_execute(zend_op_array *op_array TSRMLS_DC);
 
 
 zend_function_entry vld_functions[] = {
@@ -118,7 +117,6 @@ PHP_MSHUTDOWN_FUNCTION(vld)
 #if (PHP_MAJOR_VERSION > 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 2)
 	zend_compile_string = old_compile_string;
 #endif
-	zend_execute        = old_execute;
 
 	return SUCCESS;
 }
@@ -131,16 +129,12 @@ PHP_RINIT_FUNCTION(vld)
 #if (PHP_MAJOR_VERSION > 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 2)
 	old_compile_string = zend_compile_string;
 #endif
-	old_execute = zend_execute;
 
 	if (VLD_G(active)) {
 		zend_compile_file = vld_compile_file;
 #if (PHP_MAJOR_VERSION > 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 2)
 		zend_compile_string = vld_compile_string;
 #endif
-		if (!VLD_G(execute)) {
-			zend_execute = vld_execute;
-		}
 	}
 
 	if (VLD_G(save_paths)) {
@@ -164,7 +158,6 @@ PHP_RINIT_FUNCTION(vld)
 PHP_RSHUTDOWN_FUNCTION(vld)
 {
 	zend_compile_file = old_compile_file;
-	zend_execute      = old_execute;
 
 	if (VLD_G(path_dump_file)) {
 		fprintf(VLD_G(path_dump_file), "}\n");
@@ -337,10 +330,3 @@ static zend_op_array *vld_compile_string(zval *source_string, char *filename TSR
 }
 /* }}} */
 
-/* {{{ void vld_execute(zend_op_array *op_array TSRMLS_DC)
- *    This function provides a hook for execution */
-static void vld_execute(zend_op_array *op_array TSRMLS_DC)
-{
-	// nothing to do
-}
-/* }}} */
