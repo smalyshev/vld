@@ -159,15 +159,15 @@ static const op_usage opcodes[] = {
 	/*  105 */	{ "TICKS", ALL_USED },
 	/*  106 */	{ "SEND_VAR_NO_REF", ALL_USED | EXT_VAL },
 #ifdef ZEND_ENGINE_2
-	/*  107 */	{ "ZEND_CATCH", ALL_USED | EXT_VAL },
-	/*  108 */	{ "ZEND_THROW", ALL_USED | EXT_VAL },
+	/*  107 */	{ "CATCH", ALL_USED | EXT_VAL },
+	/*  108 */	{ "THROW", ALL_USED | EXT_VAL },
 	
-	/*  109 */	{ "ZEND_FETCH_CLASS", SPECIAL },
+	/*  109 */	{ "FETCH_CLASS", SPECIAL },
 	
-	/*  110 */	{ "ZEND_CLONE", ALL_USED },
+	/*  110 */	{ "CLONE", ALL_USED },
 
 #if (PHP_MAJOR_VERSION < 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION <= 2)
-	/*  111 */	{ "ZEND_INIT_CTOR_CALL", ALL_USED },
+	/*  111 */	{ "INIT_CTOR_CALL", ALL_USED },
 #else 
 # if PHP_VERSION_ID >= 50400
 	/*  111 */	{ "RETURN_BY_REF", OP1_USED },
@@ -175,70 +175,70 @@ static const op_usage opcodes[] = {
 	/*  111 */	{ "UNKNOWN", ALL_USED },
 # endif
 #endif
-	/*  112 */	{ "ZEND_INIT_METHOD_CALL", ALL_USED },
-	/*  113 */	{ "ZEND_INIT_STATIC_METHOD_CALL", ALL_USED },
+	/*  112 */	{ "INIT_METHOD_CALL", ALL_USED },
+	/*  113 */	{ "INIT_STATIC_METHOD_CALL", ALL_USED },
 	
-	/*  114 */	{ "ZEND_ISSET_ISEMPTY_VAR", ALL_USED | EXT_VAL },
-	/*  115 */	{ "ZEND_ISSET_ISEMPTY_DIM_OBJ", ALL_USED | EXT_VAL },
+	/*  114 */	{ "ISSET_ISEMPTY_VAR", ALL_USED | EXT_VAL },
+	/*  115 */	{ "ISSET_ISEMPTY_DIM_OBJ", ALL_USED | EXT_VAL },
 	
-	/*  116 */	{ "ZEND_IMPORT_FUNCTION", ALL_USED },
-	/*  117 */	{ "ZEND_IMPORT_CLASS", ALL_USED },
-	/*  118 */	{ "ZEND_IMPORT_CONST", ALL_USED },
+	/*  116 */	{ "IMPORT_FUNCTION", ALL_USED },
+	/*  117 */	{ "IMPORT_CLASS", ALL_USED },
+	/*  118 */	{ "IMPORT_CONST", ALL_USED },
 	
 	/*  119 */	{ "UNKNOWN", ALL_USED },
 	/*  120 */	{ "UNKNOWN", ALL_USED },
 	
-	/*  121 */	{ "ZEND_ASSIGN_ADD_OBJ", ALL_USED },
-	/*  122 */	{ "ZEND_ASSIGN_SUB_OBJ", ALL_USED },
-	/*  123 */	{ "ZEND_ASSIGN_MUL_OBJ", ALL_USED },
-	/*  124 */	{ "ZEND_ASSIGN_DIV_OBJ", ALL_USED },
-	/*  125 */	{ "ZEND_ASSIGN_MOD_OBJ", ALL_USED },
-	/*  126 */	{ "ZEND_ASSIGN_SL_OBJ", ALL_USED },
-	/*  127 */	{ "ZEND_ASSIGN_SR_OBJ", ALL_USED },
-	/*  128 */	{ "ZEND_ASSIGN_CONCAT_OBJ", ALL_USED },
-	/*  129 */	{ "ZEND_ASSIGN_BW_OR_OBJ", ALL_USED },
-	/*  130 */	{ "ZEND_ASSIGN_BW_AND_OBJ", ALL_USED },
-	/*  131 */	{ "ZEND_ASSIGN_BW_XOR_OBJ", ALL_USED },
+	/*  121 */	{ "ASSIGN_ADD_OBJ", ALL_USED },
+	/*  122 */	{ "ASSIGN_SUB_OBJ", ALL_USED },
+	/*  123 */	{ "ASSIGN_MUL_OBJ", ALL_USED },
+	/*  124 */	{ "ASSIGN_DIV_OBJ", ALL_USED },
+	/*  125 */	{ "ASSIGN_MOD_OBJ", ALL_USED },
+	/*  126 */	{ "ASSIGN_SL_OBJ", ALL_USED },
+	/*  127 */	{ "ASSIGN_SR_OBJ", ALL_USED },
+	/*  128 */	{ "ASSIGN_CONCAT_OBJ", ALL_USED },
+	/*  129 */	{ "ASSIGN_BW_OR_OBJ", ALL_USED },
+	/*  130 */	{ "ASSIGN_BW_AND_OBJ", ALL_USED },
+	/*  131 */	{ "ASSIGN_BW_XOR_OBJ", ALL_USED },
 
-	/*  132 */	{ "ZEND_PRE_INC_OBJ", ALL_USED },
-	/*  133 */	{ "ZEND_PRE_DEC_OBJ", ALL_USED },
-	/*  134 */	{ "ZEND_POST_INC_OBJ", ALL_USED },
-	/*  135 */	{ "ZEND_POST_DEC_OBJ", ALL_USED },
+	/*  132 */	{ "PRE_INC_OBJ", ALL_USED },
+	/*  133 */	{ "PRE_DEC_OBJ", ALL_USED },
+	/*  134 */	{ "POST_INC_OBJ", ALL_USED },
+	/*  135 */	{ "POST_DEC_OBJ", ALL_USED },
 
-	/*  136 */	{ "ZEND_ASSIGN_OBJ", ALL_USED },
-	/*  137 */	{ "ZEND_OP_DATA", ALL_USED },
+	/*  136 */	{ "ASSIGN_OBJ", ALL_USED },
+	/*  137 */	{ "OP_DATA", ALL_USED },
 	
-	/*  138 */	{ "ZEND_INSTANCEOF", ALL_USED },
+	/*  138 */	{ "INSTANCEOF", ALL_USED },
 	
-	/*  139 */	{ "ZEND_DECLARE_CLASS", ALL_USED },
-	/*  140 */	{ "ZEND_DECLARE_INHERITED_CLASS", ALL_USED },
-	/*  141 */	{ "ZEND_DECLARE_FUNCTION", ALL_USED },
+	/*  139 */	{ "DECLARE_CLASS", ALL_USED },
+	/*  140 */	{ "DECLARE_INHERITED_CLASS", ALL_USED },
+	/*  141 */	{ "DECLARE_FUNCTION", ALL_USED },
 	
-	/*  142 */	{ "ZEND_RAISE_ABSTRACT_ERROR", ALL_USED },
+	/*  142 */	{ "RAISE_ABSTRACT_ERROR", ALL_USED },
 	
-	/*  143 */	{ "ZEND_START_NAMESPACE", ALL_USED },
+	/*  143 */	{ "START_NAMESPACE", ALL_USED },
 	
-	/*  144 */	{ "ZEND_ADD_INTERFACE", ALL_USED },
-	/*  145 */	{ "ZEND_VERIFY_INSTANCEOF", ALL_USED },
-	/*  146 */	{ "ZEND_VERIFY_ABSTRACT_CLASS", ALL_USED },
-	/*  147 */	{ "ZEND_ASSIGN_DIM", ALL_USED },
-	/*  148 */	{ "ZEND_ISSET_ISEMPTY_PROP_OBJ", ALL_USED },
-	/*  149 */	{ "ZEND_HANDLE_EXCEPTION", NONE_USED },
-	/*  150 */	{ "ZEND_USER_OPCODE", ALL_USED },
+	/*  144 */	{ "ADD_INTERFACE", ALL_USED },
+	/*  145 */	{ "VERIFY_INSTANCEOF", ALL_USED },
+	/*  146 */	{ "VERIFY_ABSTRACT_CLASS", ALL_USED },
+	/*  147 */	{ "ASSIGN_DIM", ALL_USED },
+	/*  148 */	{ "ISSET_ISEMPTY_PROP_OBJ", ALL_USED },
+	/*  149 */	{ "HANDLE_EXCEPTION", NONE_USED },
+	/*  150 */	{ "USER_OPCODE", ALL_USED },
 	/*  151 */	{ "UNKNOWN", ALL_USED },
-	/*  152 */	{ "ZEND_JMP_SET", ALL_USED | OP2_OPLINE },
-	/*  153 */	{ "ZEND_DECLARE_LAMBDA_FUNCTION", OP1_USED },
-	/*  154 */	{ "ZEND_ADD_TRAIT", ALL_USED },
-	/*  155 */	{ "ZEND_BIND_TRAITS", OP1_USED },
-	/*  156 */	{ "ZEND_SEPARATE", ALL_USED },
+	/*  152 */	{ "JMP_SET", ALL_USED | OP2_OPLINE },
+	/*  153 */	{ "DECLARE_LAMBDA_FUNCTION", OP1_USED },
+	/*  154 */	{ "ADD_TRAIT", ALL_USED },
+	/*  155 */	{ "BIND_TRAITS", OP1_USED },
+	/*  156 */	{ "SEPARATE", ALL_USED },
 # if PHP_VERSION_ID >= 50500
-	/*  157 */	{ "ZEND_QM_ASSIGN_VAR", OP1_USED },
-	/*  158 */	{ "ZEND_JMP_SET_VAR", ALL_USED | OP2_OPLINE },
-	/*  159 */	{ "ZEND_DISCARD_EXCEPTION", NONE_USED },
-	/*  160 */	{ "ZEND_YIELD", ALL_USED },
-	/*  161 */	{ "ZEND_GENERATOR_RETURN", NONE_USED },
-	/*  162 */	{ "ZEND_FAST_CALL", ALL_USED|OP1_OPLINE|OP2_OPLINE },
-	/*  163 */	{ "ZEND_FAST_RET", ALL_USED|OP2_OPLINE },	
+	/*  157 */	{ "QM_ASSIGN_VAR", OP1_USED },
+	/*  158 */	{ "JMP_SET_VAR", ALL_USED | OP2_OPLINE },
+	/*  159 */	{ "DISCARD_EXCEPTION", NONE_USED },
+	/*  160 */	{ "YIELD", ALL_USED },
+	/*  161 */	{ "GENERATOR_RETURN", NONE_USED },
+	/*  162 */	{ "FAST_CALL", ALL_USED|OP1_OPLINE|OP2_OPLINE },
+	/*  163 */	{ "FAST_RET", ALL_USED|OP2_OPLINE },	
 #endif	
 #endif
 };
@@ -588,24 +588,10 @@ void vld_dump_op(int nr, zend_op * op_ptr, zend_uint base_address, int notdead, 
 		last_lineno = op.lineno;
 	}
 
-	if (op.opcode >= NUM_KNOWN_OPCODES) {
-		if (VLD_G(format)) {
-			vld_printf(stderr, "%5d %s %c %c %c %s <%03d>%-23s %s %-14s ", nr, VLD_G(col_sep), notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ', VLD_G(col_sep), op.opcode, VLD_G(col_sep), fetch_type);
-		} else {
-			vld_printf(stderr, "%5d%c %c %c <%03d>%-23s %-14s ", nr, notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ', op.opcode, "", fetch_type);
-		}
+	if (VLD_G(format)) {
+		vld_printf(stderr, "%5d %s %c %c %c %s ", nr, VLD_G(col_sep), notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ', VLD_G(col_sep));
 	} else {
-		if (VLD_G(format)) {
-			vld_printf(stderr, "%5d %s %c %c %c %s %-28s %s %-14s ", nr, VLD_G(col_sep), notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ', VLD_G(col_sep), opcodes[op.opcode].name, VLD_G(col_sep), fetch_type);
-		} else {
-			vld_printf(stderr, "%5d%c %c %c %-28s %-14s ", nr, notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ', opcodes[op.opcode].name, fetch_type);
-		}
-	}
-
-	if (flags & EXT_VAL) {
-		vld_printf(stderr, "%3X  ", op.extended_value);
-	} else {
-		vld_printf(stderr, "     ");
+		vld_printf(stderr, "%5d%c %c %c ", nr, notdead ? ' ' : '*', start ? '>' : ' ', end ? '>' : ' ');
 	}
 
 	if ((flags & RES_USED) && !(op.VLD_EXTENDED_VALUE(result) & EXT_TYPE_UNUSED)) {
@@ -614,15 +600,30 @@ void vld_dump_op(int nr, zend_op * op_ptr, zend_uint base_address, int notdead, 
 		VLD_PRINT(3, " ]");
 		if (VLD_G(format)) {
 			if (len==0) {
-				vld_printf(stderr, " ");
+				vld_printf(stderr, " = ");
 			}
 		} else {
-			vld_printf(stderr, "%*s", 8-len, " ");
+			vld_printf(stderr, "%*s", 8-len, " = ");
 		}
 	} else {
 		vld_printf(stderr, "        ");
 	}
 
+	if (op.opcode >= NUM_KNOWN_OPCODES) {
+		if (VLD_G(format)) {
+			vld_printf(stderr, "<%03d>%-23s %s ", op.opcode, VLD_G(col_sep));
+		} else {
+			vld_printf(stderr, "<%03d>%-23s ", op.opcode);
+		}
+	} else {
+		if (VLD_G(format)) {
+			vld_printf(stderr, "%-28s %s ", opcodes[op.opcode].name, VLD_G(col_sep));
+		} else {
+			vld_printf(stderr, "%-28s ", opcodes[op.opcode].name);
+		}
+	}
+	
+	
 	if (flags & OP1_USED) {
 		VLD_PRINT(3, " OP1[ ");
 		vld_dump_znode (&print_sep, op1_type, op.op1, base_address TSRMLS_CC);
@@ -663,6 +664,25 @@ void vld_dump_op(int nr, zend_op * op_ptr, zend_uint base_address, int notdead, 
 		}
 		VLD_PRINT(3, " ]");
 	}
+
+	if (VLD_G(format)) {
+		vld_printf(stderr, "%s ", VLD_G(col_sep));
+	} else {
+		vld_printf(stderr, "   ");
+	}
+
+	if(fetch_type && fetch_type[0]) {
+		if (VLD_G(format)) {
+			vld_printf(stderr, "%s %-14s ", fetch_type);
+		} else {
+			vld_printf(stderr, "%-14s ", fetch_type);
+		}
+	}	
+
+	if (flags & EXT_VAL) {
+		vld_printf(stderr, "%3X  ", op.extended_value);
+	} 
+
 	if (flags & OP2_BRK_CONT) {
 		long jmp;
 		zend_brk_cont_element *el;
